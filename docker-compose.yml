@@ -1,0 +1,51 @@
+version: "3.1"
+
+services:
+  # Apache service
+  web:
+    build: ./web
+    ports:
+      - "80:80"
+    volumes:
+      - ./www/src:/usr/local/apache2/htdocs/
+    depends_on:
+      - db
+    container_name: web
+
+  # MySQL service
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - persistent:/var/lib/mysql
+    container_name: db
+
+  # PHP service
+  php:
+    image: php:7.4-fpm
+    volumes:
+      - ./www/src:/usr/local/apache2/htdocs/
+    ports:
+      - "9000:9000"
+    container_name: php
+
+  # phpMyAdmin service
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    container_name: pma
+
+volumes:
+  db:
+  php:
+  persistent:
